@@ -23,11 +23,8 @@ module.exports = {
   },
   signin: async (req, res) => {
     let { username, password } = req.body
-    console.log(req.body)
     try {
-      console.log('hit')
       const user = await User.comparePassword(username, password)
-      console.log(user)
       const token = await user.generateAuthToken()
 
       res.send({
