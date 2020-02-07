@@ -10,7 +10,7 @@ module.exports = {
       res.status(400).send(err)
     }
   },
-  create: async (req, res) => {
+  createRoute: async (req, res) => {
     try {
       let { body } = req.body
       let message = await Message.create({
@@ -21,6 +21,22 @@ module.exports = {
       res.send({ message })
     } catch (err) {
       res.status(400).send(err)
+    }
+  },
+  create: async messageData => {
+    try {
+      let message = await Message.create({
+        body: messageData.body,
+        author: messageData.author,
+        created: messageData.created
+      })
+
+      message = await message.populate('author', '_id username').execPopulate()
+
+      return message
+    } catch (err) {
+      console.log(err)
+      return err
     }
   },
   update: async (req, res) => {
