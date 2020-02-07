@@ -9,6 +9,9 @@ let MessageSchema = new mongoose.Schema(
     author: {
       type: mongoose.Schema.ObjectId,
       ref: 'User'
+    },
+    created: {
+      type: String
     }
   },
   {

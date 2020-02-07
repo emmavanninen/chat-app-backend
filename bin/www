@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+let socketInit = require('../socket')
 
 /**
  * Module dependencies.
@@ -7,6 +8,7 @@
 var app = require('../app')
 var debug = require('debug')('chat-app-backend:server')
 var http = require('http')
+const socketIo = require('socket.io')
 
 /**
  * Get port from environment and store in Express.
@@ -20,6 +22,10 @@ app.set('port', port)
  */
 
 var server = http.createServer(app)
+
+const io = socketIo(server)
+
+socketInit.init(io)
 
 /**
  * Listen on provided port, on all network interfaces.
