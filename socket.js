@@ -2,12 +2,10 @@ let messageController = require('./controllers/message')
 
 module.exports = {
   init: async io => {
+    let clients = {}
+
     io.on('connection', socket => {
       console.log('new client connected', socket.id)
-
-      socket.on('message', socket => {
-        console.log(socket)
-      })
 
       socket.on('createMessage', async socket => {
         let messageData = {
@@ -22,6 +20,10 @@ module.exports = {
         } catch (error) {
           console.log(error)
         }
+      })
+
+      socket.on('sendUserToServer', socket => {
+        io.sockets.emit('broadcastUser', socket.username)
       })
 
       socket.on('disconnect', () => {
