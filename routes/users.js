@@ -8,5 +8,6 @@ let auth = passport.authenticate('jwt-user')
 router.get('/', auth, userController.index)
 router.post('/signup', userController.signup)
 router.post('/signin', userController.signin)
+router.get('/get-user', auth, userController.getUser)
 
 module.exports = router

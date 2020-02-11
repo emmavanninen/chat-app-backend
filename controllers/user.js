@@ -1,4 +1,4 @@
-const User = require('../models/User')
+const User = require("../models/User")
 
 module.exports = {
   index: async (req, res) => {
@@ -32,6 +32,22 @@ module.exports = {
         token
       })
     } catch (error) {
+      res.status(400).send(error)
+    }
+  },
+  getUser: async (req, res) => {
+    let user = req.user
+
+    try {
+      let userInfo = {
+        email: user.email,
+        username: user.username,
+        photo: user.photo,
+        // messages: user.messages,
+        timestamps: user.timestamp
+      }
+      res.send(userInfo)
+    } catch (e) {
       res.status(400).send(error)
     }
   }
