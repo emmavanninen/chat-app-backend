@@ -47,16 +47,24 @@ module.exports = {
       }
       res.send(userInfo)
     } catch (e) {
-      res.status(400).send(error)
+      res.status(400).send(e)
     }
   },
   editUser: async (req, res) => {
-      
-     let userid = req.user._id
-     let newUser = req.body
+    let userid = req.user._id
+    let updatedUser = req.body
 
-     let success = User.findByIdAndUpdate(userid, )
-     
+    try {
+      if (updatedUser["oldPassword"]) {
+        await User.comparePassword(req.user.username, updatedUser.oldPassword)
+      }
 
+      let success = await User.findByIdAndUpdate(userid, updatedUser, {
+        new: true
+      })
+      console.log(success)
+    } catch (e) {
+      res.status(400).send(e)
+    }
   }
 }
