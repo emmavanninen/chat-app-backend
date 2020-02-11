@@ -26,6 +26,11 @@ let userSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    socketIds: [
+      {
+        type: 'String'
+      }
+    ],
     messages: [{ type: mongoose.Schema.ObjectId, ref: 'Message' }]
   },
   {

@@ -23,6 +23,12 @@ let ChannelSchema = new mongoose.Schema(
         type: mongoose.Schema.ObjectId,
         ref: 'Message'
       }
+    ],
+    liveMembers: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+      }
     ]
   },
   {
