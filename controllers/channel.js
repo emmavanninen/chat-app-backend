@@ -1,15 +1,54 @@
 const Channel = require('../models/Channel')
+const User = require('../models/User')
 
 module.exports = {
   index: async (req, res) => {
     try {
       let channels = await Channel.find({}, '-password -__v')
-
       res.send(channels)
     } catch (err) {
       res.status(400).send(err)
     }
   },
+  getChannelByName: async query => {
+    try {
+      let channel = await Channel.findOne({ title: query })
+        .populate('liveMembers')
+        .exec()
+
+      return channel
+    } catch (err) {
+      console.log(error)
+    }
+  },
+  addLiveMember: async (query, userId, socketId) => {
+    try {
+      let channel = await Channel.findOne({ title: query })
+        .populate('liveMembers')
+        .exec()
+
+      let user = await User.findById(userId)
+
+      channel.liveMembers.push(user)
+
+      await channel.save()
+      return channel
+    } catch (error) {
+      console.log(error)
+    }
+  },
+  removeLiveMember: async (query, userId) => {
+    try {
+      let channel = await Channel.findOne({ title: query })
+      channel.liveMembers.pull(userId)
+      await channel.save()
+
+      return channel.populate('liveMembers').execPopulate()
+    } catch (error) {
+      console.log(error)
+    }
+  },
+
   create: async (req, res) => {
     let { title } = req.body
     try {
@@ -21,6 +60,18 @@ module.exports = {
       res.send({ channel })
     } catch (err) {
       res.status(400).send(err)
+    }
+  },
+  createChannel: async data => {
+    let { title } = data
+    try {
+      let channel = await Channel.create({
+        title: title
+      })
+
+      return channel
+    } catch (err) {
+      console.log(err)
     }
   },
   updateTitle: async (req, res) => {
