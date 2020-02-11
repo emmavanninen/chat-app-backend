@@ -10,7 +10,6 @@ module.exports = {
       res.status(400).send(err)
     }
   },
-
   signup: async (req, res) => {
     try {
       let user = await User.create(req.body)
@@ -50,5 +49,14 @@ module.exports = {
     } catch (e) {
       res.status(400).send(error)
     }
+  },
+  editUser: async (req, res) => {
+      
+     let userid = req.user._id
+     let newUser = req.body
+
+     let success = User.findByIdAndUpdate(userid, )
+     
+
   }
 }
