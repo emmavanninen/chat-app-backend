@@ -58,9 +58,9 @@ userSchema.methods.generateAuthToken = async function() {
       username: user.username
     },
     process.env.USER_SECRET_KEY,
-    {
-      expiresIn: 3600000
-    }
+    // {
+    //   expiresIn: 3600
+    // }
   )
 
   return token
