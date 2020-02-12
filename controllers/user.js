@@ -1,4 +1,5 @@
 const User = require("../models/User")
+const bcrypt = require("bcryptjs")
 
 module.exports = {
   index: async (req, res) => {
@@ -57,12 +58,18 @@ module.exports = {
     try {
       if (updatedUser["oldPassword"]) {
         await User.comparePassword(req.user.username, updatedUser.oldPassword)
+
+        delete updatedUser["oldPassword"]
+
+        let salt = await bcrypt.genSalt(12)
+        let hash = await bcrypt.hash(updatedUser.password, salt)
+        updatedUser.password = hash
       }
 
       let success = await User.findByIdAndUpdate(userid, updatedUser, {
         new: true
       })
-      console.log(success)
+      res.send(success)
     } catch (e) {
       res.status(400).send(e)
     }
