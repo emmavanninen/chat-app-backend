@@ -21,6 +21,27 @@ module.exports = {
       console.log(error)
     }
   },
+  getChannelUsers: async (req, res) => {
+    try {
+      let channel = await Channel.findOne({ title: req.params.roomName })
+        .populate('liveMembers')
+        .populate({ path: 'messages', populate: { path: 'author' } })
+        .exec()
+
+      res.send(channel)
+    } catch (error) {
+      res.status(400).send(error)
+    }
+  },
+  getChannelMessages: async (req, res) => {
+    try {
+      let channel = await Channel.findOne({ title: req.params.roomName })
+
+      res.send(channel.messages)
+    } catch (error) {
+      res.status(400).send(error)
+    }
+  },
   addLiveMember: async (query, userId, socketId) => {
     try {
       let channel = await Channel.findOne({ title: query })
@@ -39,9 +60,13 @@ module.exports = {
   },
   removeLiveMember: async (query, userId) => {
     try {
+      let channels = await Channel.updateMany(
+        {},
+        { $pull: { liveMembers: userId } },
+        { multi: true }
+      )
+
       let channel = await Channel.findOne({ title: query })
-      channel.liveMembers.pull(userId)
-      await channel.save()
 
       return channel.populate('liveMembers').execPopulate()
     } catch (error) {

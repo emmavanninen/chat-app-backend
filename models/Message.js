@@ -12,6 +12,11 @@ let MessageSchema = new mongoose.Schema(
     },
     created: {
       type: String
+    },
+    channel: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Channel',
+      required: 'Channel is required'
     }
   },
   {

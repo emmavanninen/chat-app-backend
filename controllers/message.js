@@ -1,10 +1,10 @@
 const Message = require('../models/Message')
+const Channel = require('../models/Channel')
 
 module.exports = {
   index: async (req, res) => {
     try {
       let messages = await Message.find({}, '-password -__v')
-
       res.send(messages)
     } catch (err) {
       res.status(400).send(err)
@@ -25,11 +25,13 @@ module.exports = {
   },
   create: async messageData => {
     try {
-      let message = await Message.create({
-        body: messageData.body,
-        author: messageData.author,
-        created: messageData.created
-      })
+      console.log(messageData.channel)
+      let message = await Message.create(messageData)
+      let channel = await Channel.findById(message.channel)
+
+      channel.messages.push(message._id)
+
+      await channel.save()
 
       message = await message.populate('author', '_id username').execPopulate()
 

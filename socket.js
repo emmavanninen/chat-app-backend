@@ -5,8 +5,10 @@ const createMessage = async (data, io) => {
   let messageData = {
     author: data.author,
     body: data.body,
-    created: data.created
+    created: data.created,
+    channel: data.channel
   }
+
   try {
     let message = await messageController.create(messageData)
     io.sockets.emit('chat', message)
@@ -15,13 +17,13 @@ const createMessage = async (data, io) => {
   }
 }
 
-const createChannel = async (data, io) => {
+const createChannel = async roomName => {
   let channelData = {
-    title: 'main'
+    title: roomName
   }
   try {
     let channel = await channelController.createChannel(channelData)
-    console.log('channel created', channel)
+    console.log('channel created ', channel)
   } catch (error) {
     console.log(error)
   }
@@ -31,12 +33,11 @@ const init = async io => {
   io.on('connection', socket => {
     console.log('connected ', socket.id)
 
-    // uncomment to seed a main channel
-    // createChannel()
-
-    socket.on('getUsers', async () => {
+    socket.on('getUsers', async roomName => {
       try {
-        let channel = await channelController.getChannelByName('main')
+        // uncomment to seed a General channel
+        // await createChannel(roomName)
+        let channel = await channelController.getChannelByName(roomName)
 
         io.emit('chatroomUsers', channel.liveMembers)
       } catch (error) {
@@ -44,13 +45,14 @@ const init = async io => {
       }
     })
 
-    socket.on('createMessage', data => {
-      createMessage(data, io)
+    socket.on('createMessage', message => {
+      console.log('49 ', message)
+      createMessage(message, io)
     })
 
-    socket.on('sendUserToServer', async user => {
+    socket.on('sendUserToServer', async (user, roomName) => {
       let channel = await channelController.addLiveMember(
-        'main',
+        roomName,
         user._id,
         socket.id
       )
@@ -58,11 +60,16 @@ const init = async io => {
       io.emit('chatroomUsers', channel.liveMembers)
     })
 
-    socket.on('removeUserFromActiveChat', async user => {
+    socket.on('removeUserFromActiveChat', async (user, roomName) => {
       try {
-        let channel = await channelController.removeLiveMember('main', user._id)
+        let channel = await channelController.removeLiveMember(
+          roomName,
+          user._id
+        )
 
-        io.sockets.emit('chatroomUsers', channel.liveMembers)
+        if (channel) {
+          io.sockets.emit('chatroomUsers', channel.liveMembers)
+        }
       } catch (error) {
         console.log(error)
       }
