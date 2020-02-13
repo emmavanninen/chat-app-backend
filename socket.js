@@ -31,8 +31,6 @@ const createChannel = async roomName => {
 
 const init = async io => {
   io.on('connection', socket => {
-    console.log('connected ', socket.id)
-
     socket.on('getUsers', async roomName => {
       try {
         // uncomment to seed a General channel
@@ -46,7 +44,6 @@ const init = async io => {
     })
 
     socket.on('createMessage', message => {
-      console.log('49 ', message)
       createMessage(message, io)
     })
 
@@ -76,7 +73,7 @@ const init = async io => {
     })
 
     socket.on('disconnect', async () => {
-      console.log('disconnected')
+      // console.log('disconnected')
     })
   })
 }
