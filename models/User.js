@@ -26,11 +26,6 @@ let userSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
-    socketIds: [
-      {
-        type: 'String'
-      }
-    ],
     messages: [{ type: mongoose.Schema.ObjectId, ref: 'Message' }]
   },
   {
@@ -57,7 +52,7 @@ userSchema.methods.generateAuthToken = async function() {
       _id: user._id.toString(),
       username: user.username
     },
-    process.env.USER_SECRET_KEY,
+    process.env.USER_SECRET_KEY
     // {
     //   expiresIn: 3600
     // }

@@ -50,7 +50,17 @@ module.exports = {
 
       let user = await User.findById(userId)
 
-      channel.liveMembers.push(user)
+      channel.liveMembers = channel.liveMembers.filter(member => (
+         member._id.toString() !== userId
+      ))
+
+      if (
+        !channel.liveMembers.find(member => (
+           member._id.toString() === userId
+        ))
+      ) {
+        channel.liveMembers.push(user)
+      }
 
       await channel.save()
       return channel
@@ -67,8 +77,9 @@ module.exports = {
       )
 
       let channel = await Channel.findOne({ title: query })
+      let data = await channel.populate('liveMembers').execPopulate()
 
-      return channel.populate('liveMembers').execPopulate()
+      return data
     } catch (error) {
       console.log(error)
     }

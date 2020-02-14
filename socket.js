@@ -1,7 +1,7 @@
 const messageController = require('./controllers/message')
 const channelController = require('./controllers/channel')
 
-const createMessage = async (data, io) => {
+const createMessage = async (data, io, roomName) => {
   let messageData = {
     author: data.author,
     body: data.body,
@@ -11,7 +11,7 @@ const createMessage = async (data, io) => {
 
   try {
     let message = await messageController.create(messageData)
-    io.sockets.emit('chat', message)
+    io.to(roomName).emit('chat', message)
   } catch (error) {
     console.log(error)
   }
@@ -23,7 +23,6 @@ const createChannel = async roomName => {
   }
   try {
     let channel = await channelController.createChannel(channelData)
-    console.log('channel created ', channel)
   } catch (error) {
     console.log(error)
   }
@@ -31,20 +30,28 @@ const createChannel = async roomName => {
 
 const init = async io => {
   io.on('connection', socket => {
+    let { roomName } = socket.handshake.query
+
+    socket.join(roomName)
+
     socket.on('getUsers', async roomName => {
       try {
+        // await createChannel('General')
         // uncomment to seed a General channel
-        // await createChannel(roomName)
         let channel = await channelController.getChannelByName(roomName)
 
-        io.emit('chatroomUsers', channel.liveMembers)
+        io.to(roomName).emit('chatroomUsers', channel.liveMembers)
       } catch (error) {
         console.log(error)
       }
     })
 
+    socket.on('createNewChannel', async () => {
+      await createChannel(roomName)
+    })
+
     socket.on('createMessage', message => {
-      createMessage(message, io)
+      createMessage(message, io, roomName)
     })
 
     socket.on('sendUserToServer', async (user, roomName) => {
@@ -54,7 +61,7 @@ const init = async io => {
         socket.id
       )
 
-      io.emit('chatroomUsers', channel.liveMembers)
+      io.to(roomName).emit('chatroomUsers', channel.liveMembers)
     })
 
     socket.on('removeUserFromActiveChat', async (user, roomName) => {
@@ -65,7 +72,7 @@ const init = async io => {
         )
 
         if (channel) {
-          io.sockets.emit('chatroomUsers', channel.liveMembers)
+          io.emit('chatroomUsers', channel.liveMembers, user._id, true)
         }
       } catch (error) {
         console.log(error)
