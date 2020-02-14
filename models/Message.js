@@ -4,7 +4,7 @@ let MessageSchema = new mongoose.Schema(
   {
     body: {
       type: String,
-      required: 'Text is required'
+      required: true
     },
     author: {
       type: mongoose.Schema.ObjectId,

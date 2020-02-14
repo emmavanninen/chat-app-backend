@@ -50,6 +50,10 @@ const init = async io => {
       await createChannel(roomName)
     })
 
+    socket.on('onTyping', (user, callback) => {
+      socket.broadcast.to(roomName).emit('someoneTyping', user.username)
+    })
+
     socket.on('createMessage', message => {
       createMessage(message, io, roomName)
     })
