@@ -21,7 +21,7 @@ module.exports = {
 
       return channel
     } catch (err) {
-      console.log(error)
+      console.log(err)
     }
   },
   getChannelUsers: async (req, res) => {
@@ -45,7 +45,7 @@ module.exports = {
       res.status(400).send(error)
     }
   },
-  addLiveMember: async (query, userId, socketId) => {
+  addLiveMember: async (query, userId) => {
     try {
       let channel = await Channel.findOne({ title: query })
         .populate('liveMembers')
@@ -76,7 +76,7 @@ module.exports = {
   },
   removeLiveMember: async (query, userId) => {
     try {
-      let channels = await Channel.updateMany(
+      await Channel.updateMany(
         {},
         { $pull: { liveMembers: userId } },
         { multi: true }
