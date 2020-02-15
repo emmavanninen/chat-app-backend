@@ -50,20 +50,23 @@ module.exports = {
 
       let user = await User.findById(userId)
 
-      channel.liveMembers = channel.liveMembers.filter(member => (
-         member._id.toString() !== userId
-      ))
+      if (user) {
+        channel.liveMembers = channel.liveMembers.filter(
+          member => member._id.toString() !== userId
+        )
 
-      if (
-        !channel.liveMembers.find(member => (
-           member._id.toString() === userId
-        ))
-      ) {
-        channel.liveMembers.push(user)
+        if (
+          !channel.liveMembers.find(member => member._id.toString() === userId)
+        ) {
+          channel.liveMembers.push(user)
+        }
+
+        await channel.save()
+
+        return channel
+      } else {
+        return new Error(`No user was found with ${userId}`)
       }
-
-      await channel.save()
-      return channel
     } catch (error) {
       console.log(error)
     }
