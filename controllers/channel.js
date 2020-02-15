@@ -4,7 +4,10 @@ const User = require('../models/User')
 module.exports = {
   index: async (req, res) => {
     try {
-      let channels = await Channel.find({}, '-password -__v')
+      let channels = await Channel.find(
+        {},
+        '-password -__v -liveMembers -members -messages'
+      )
       res.send(channels)
     } catch (err) {
       res.status(400).send(err)
