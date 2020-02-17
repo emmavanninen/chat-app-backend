@@ -23,6 +23,7 @@ const createChannel = async roomName => {
   }
   try {
     let channel = await channelController.createChannel(channelData)
+    console.log(`channel: ${channel.username} created successfully`)
   } catch (error) {
     console.log(error)
   }
@@ -36,8 +37,6 @@ const init = async io => {
 
     socket.on('getUsers', async roomName => {
       try {
-        // await createChannel('General')
-        // uncomment to seed a General channel
         let channel = await channelController.getChannelByName(roomName)
 
         io.to(roomName).emit('chatroomUsers', channel.liveMembers)
@@ -46,11 +45,15 @@ const init = async io => {
       }
     })
 
+    socket.on('addChannelToSockets', channel => {
+      io.emit('addChannelToSockets', channel)
+    })
+
     socket.on('createNewChannel', async () => {
       await createChannel(roomName)
     })
 
-    socket.on('onTyping', (user, callback) => {
+    socket.on('onTyping', user => {
       socket.broadcast.to(roomName).emit('someoneTyping', user.username)
     })
 
