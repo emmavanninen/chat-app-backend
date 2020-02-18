@@ -4,7 +4,10 @@ const User = require('../models/User')
 module.exports = {
   index: async (req, res) => {
     try {
-      let channels = await Channel.find({}, '-password -__v')
+      let channels = await Channel.find(
+        {},
+        '-password -__v -liveMembers -members -messages'
+      )
       res.send(channels)
     } catch (err) {
       res.status(400).send(err)
@@ -18,10 +21,31 @@ module.exports = {
 
       return channel
     } catch (err) {
-      console.log(error)
+      console.log(err)
     }
   },
-  addLiveMember: async (query, userId, socketId) => {
+  getChannelUsers: async (req, res) => {
+    try {
+      let channel = await Channel.findOne({ title: req.params.roomName })
+        .populate('liveMembers')
+        .populate({ path: 'messages', populate: { path: 'author' } })
+        .exec()
+
+      res.send(channel)
+    } catch (error) {
+      res.status(400).send(error)
+    }
+  },
+  getChannelMessages: async (req, res) => {
+    try {
+      let channel = await Channel.findOne({ title: req.params.roomName })
+
+      res.send(channel.messages)
+    } catch (error) {
+      res.status(400).send(error)
+    }
+  },
+  addLiveMember: async (query, userId) => {
     try {
       let channel = await Channel.findOne({ title: query })
         .populate('liveMembers')
@@ -29,21 +53,39 @@ module.exports = {
 
       let user = await User.findById(userId)
 
-      channel.liveMembers.push(user)
+      if (user) {
+        channel.liveMembers = channel.liveMembers.filter(
+          member => member._id.toString() !== userId
+        )
 
-      await channel.save()
-      return channel
+        if (
+          !channel.liveMembers.find(member => member._id.toString() === userId)
+        ) {
+          channel.liveMembers.push(user)
+        }
+
+        await channel.save()
+
+        return channel
+      } else {
+        return new Error(`No user was found with ${userId}`)
+      }
     } catch (error) {
       console.log(error)
     }
   },
   removeLiveMember: async (query, userId) => {
     try {
-      let channel = await Channel.findOne({ title: query })
-      channel.liveMembers.pull(userId)
-      await channel.save()
+      await Channel.updateMany(
+        {},
+        { $pull: { liveMembers: userId } },
+        { multi: true }
+      )
 
-      return channel.populate('liveMembers').execPopulate()
+      let channel = await Channel.findOne({ title: query })
+      let data = await channel.populate('liveMembers').execPopulate()
+
+      return data
     } catch (error) {
       console.log(error)
     }

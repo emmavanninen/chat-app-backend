@@ -4,7 +4,7 @@ let MessageSchema = new mongoose.Schema(
   {
     body: {
       type: String,
-      required: 'Text is required'
+      required: true
     },
     author: {
       type: mongoose.Schema.ObjectId,
@@ -12,6 +12,11 @@ let MessageSchema = new mongoose.Schema(
     },
     created: {
       type: String
+    },
+    channel: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Channel',
+      required: 'Channel is required'
     }
   },
   {
