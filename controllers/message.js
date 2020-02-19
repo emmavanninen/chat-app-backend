@@ -33,7 +33,9 @@ module.exports = {
 
       await channel.save()
 
-      message = await message.populate('author', '_id username').execPopulate()
+      message = await message
+        .populate('author', '_id username photo')
+        .execPopulate()
 
       return message
     } catch (err) {

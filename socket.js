@@ -49,8 +49,8 @@ const init = async io => {
       io.emit('addChannelToSockets', channel)
     })
 
-    socket.on('removeChannelFromSockets', id => {
-      io.emit('removeChannelFromSockets', id)
+    socket.on('removeChannelFromSockets', data => {
+      io.emit('removeChannelFromSockets', data)
     })
 
     socket.on('createNewChannel', async () => {
@@ -58,7 +58,9 @@ const init = async io => {
     })
 
     socket.on('onTyping', user => {
-      socket.broadcast.to(roomName).emit('someoneTyping', user.username)
+      if (user) {
+        socket.broadcast.to(roomName).emit('someoneTyping', user.username)
+      }
     })
 
     socket.on('createMessage', message => {
