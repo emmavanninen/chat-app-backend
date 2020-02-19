@@ -49,6 +49,10 @@ const init = async io => {
       io.emit('addChannelToSockets', channel)
     })
 
+    socket.on('removeChannelFromSockets', id => {
+      io.emit('removeChannelFromSockets', id)
+    })
+
     socket.on('createNewChannel', async () => {
       await createChannel(roomName)
     })

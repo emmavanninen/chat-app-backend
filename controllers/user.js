@@ -1,5 +1,6 @@
-const User = require("../models/User")
-const bcrypt = require("bcryptjs")
+const User = require('../models/User')
+const Channel = require('../models/Channel')
+const bcrypt = require('bcryptjs')
 
 module.exports = {
   index: async (req, res) => {
@@ -56,10 +57,10 @@ module.exports = {
     let updatedUser = req.body
 
     try {
-      if (updatedUser["oldPassword"]) {
+      if (updatedUser['oldPassword']) {
         await User.comparePassword(req.user.username, updatedUser.oldPassword)
 
-        delete updatedUser["oldPassword"]
+        delete updatedUser['oldPassword']
 
         let salt = await bcrypt.genSalt(12)
         let hash = await bcrypt.hash(updatedUser.password, salt)
@@ -72,6 +73,21 @@ module.exports = {
       res.send(success)
     } catch (e) {
       res.status(400).send(e)
+    }
+  },
+  delete: async (req, res) => {
+    try {
+      await Channel.updateMany(
+        {},
+        { $pull: { liveMembers: req.user._id } },
+        { multi: true }
+      )
+
+      let user = await User.findByIdAndDelete(req.user.id)
+
+      res.send(user)
+    } catch (err) {
+      res.status(400).send(err)
     }
   }
 }
