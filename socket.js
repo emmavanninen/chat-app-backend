@@ -85,6 +85,7 @@ const init = async io => {
         )
 
         if (channel) {
+          console.log(channel.liveMembers)
           io.emit('chatroomUsers', channel.liveMembers, user._id, true)
         }
       } catch (error) {

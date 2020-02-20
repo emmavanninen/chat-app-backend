@@ -25,7 +25,6 @@ module.exports = {
   },
   create: async messageData => {
     try {
-      console.log(messageData.channel)
       let message = await Message.create(messageData)
       let channel = await Channel.findById(message.channel)
 
